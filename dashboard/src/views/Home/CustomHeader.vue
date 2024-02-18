@@ -6,7 +6,10 @@
                     <img class="w-full" src="../../assets/images/logo_white 1.png" alt="Logo">
                 </div>
                 <div class="flex gap-1">
-                    <button class="px-6 py-2 font-bold text-white rounded-full focus:outline-none">
+                    <button
+                        @click="() => emit('create-account')"
+                        class="px-6 py-2 font-bold text-white rounded-full focus:outline-none"
+                    >
                         Crie uma conta
                     </button>
                     <button

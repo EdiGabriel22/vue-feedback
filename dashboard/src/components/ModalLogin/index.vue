@@ -68,26 +68,58 @@
 
 <script>
 import useModal from '@/hooks/useModal'
+import services from '../../services'
+import { useField } from 'vee-validate'
 import { reactive } from 'vue'
+import { validateEmptyAndLength3, validateEmptyAndEmail } from '@/utils/validator'
+import { useRoute } from 'vue-router'
 
 export default {
     setup() {
+        const router = useRoute()
         const modal = useModal()
+
+        const {
+            value: emailValue,
+            errorMessage: emailErrorMessage
+        } = useField('email', validateEmptyAndEmail)
+
+        const {
+            value: passwordValue,
+            errorMessage: passwordErrorMessage
+        } = useField('password', validateEmptyAndLength3)
+
         const state = reactive({
             hasErrors: false,
             isLoading: false,
             email: {
-                value: null,
-                errorMessage: null
+                value: emailValue,
+                errorMessage: emailErrorMessage
             },
             password: {
-                value: null,
-                errorMessage: null
+                value: passwordValue,
+                errorMessage: passwordErrorMessage
             }
         })
 
-        function handleSubmit() {
-            console.log('Logando')
+        async function handleSubmit() {
+            try {
+                state.isLoading = true
+                const { data, errors } = await services.auth.login({
+                    email: state.email.value,
+                    password: state.password.value
+                })
+                if (!errors) {
+                    window.localStorage.setItem('token', data.token)
+                    router.push({ name: 'Feedbacks' })
+                    modal.close()
+                    return
+                }
+                state.isLoading = false
+            } catch (error) {
+                state.isLoading = false
+                state.hasErrors = !!error
+            }
         }
 
         return {

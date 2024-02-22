@@ -10,7 +10,7 @@
                 :class="state.width"
             >
                 <div class="flex flex-col overflow-hidden bg-white rounded-lg animate__fadeInDown animate__faster animate__animated">
-                    <div class="flex flex-col px-12 py-10 bg-white">
+                    <div class="flex flex-col px-12 py-10 bg-white" @click.stop>
                         <component :is="state.component" />
                     </div>
                 </div>

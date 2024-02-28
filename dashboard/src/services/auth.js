@@ -1,24 +1,22 @@
-/*  global httpClient  */
-
-export default httpClient({
+export default httpClient => ({
     login: async({ email, password }) => {
-        const response = await httpClient.post('auth/login', {
-            email,
-            password
-        })
+      const response = await httpClient.post('/auth/login', {
+        email, password
+      })
+      console.log('🚀 ~ login:async ~ response:', response)
 
-        let errors = null
+      let errors = null
 
-        if (!response.data) {
-            errors = {
-                status: response.request.status,
-                statusText: response.request.statusText
-            }
+      if (!response.data) {
+        errors = {
+          status: response.request.status,
+          statusText: response.request.statusText
         }
+      }
 
-        return {
-            data: response.data,
-            errors
-        }
+      return {
+        data: response.data,
+        errors
+      }
     }
-})
+  })

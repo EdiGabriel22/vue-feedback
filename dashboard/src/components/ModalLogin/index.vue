@@ -60,7 +60,14 @@
                 }"
                 class="px-8 py-3 mt-10 text-2xl font-bold text-white transition-all duration-150 rounded-full bg-brand-main"
             >
-                Entrar
+                <icon
+                    v-if="state.isLoading"
+                    name="loading"
+                    class="animate-spin"
+                />
+                <span v-else>
+                    Entrar
+                </span>
             </button>
         </form>
     </div>
@@ -69,15 +76,19 @@
 <script>
 import useModal from '@/hooks/useModal'
 import services from '../../services'
+import icon from '../../components/Icon'
+import { useToast } from 'vue-toastification'
 import { useField } from 'vee-validate'
 import { reactive } from 'vue'
 import { validateEmptyAndLength3, validateEmptyAndEmail } from '@/utils/validator'
 import { useRoute } from 'vue-router'
 
 export default {
+    components: { icon },
     setup() {
         const router = useRoute()
         const modal = useModal()
+        const toast = useToast()
 
         const {
             value: emailValue,
@@ -104,6 +115,7 @@ export default {
 
         async function handleSubmit() {
             try {
+                toast.clear()
                 state.isLoading = true
                 const { data, errors } = await services.auth.login({
                     email: state.email.value,
@@ -112,13 +124,28 @@ export default {
                 if (!errors) {
                     window.localStorage.setItem('token', data.token)
                     router.push({ name: 'Feedbacks' })
+                    state.isLoading = false
                     modal.close()
                     return
                 }
+
+                if (errors.status === 404) {
+                  toast.error('E-mail não encontrado')
+                }
+
+                if (errors.status === 401) {
+                  toast.error('E-mail ou senha inválidos')
+                }
+
+                if (errors.status === 400) {
+                  toast.error('Ocorreu um erro ao fazer o loginn')
+                }
+
                 state.isLoading = false
             } catch (error) {
                 state.isLoading = false
                 state.hasErrors = !!error
+                toast.error('Ocorreu um erro ao fazer o login')
             }
         }
 
